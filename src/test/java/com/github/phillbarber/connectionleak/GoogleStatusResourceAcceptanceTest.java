@@ -7,18 +7,21 @@ import com.sun.jersey.api.client.ClientResponse;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
 
-public class PingGoogleResourceTest {
+import static org.junit.Assert.assertEquals;
+
+public class GoogleStatusResourceAcceptanceTest {
 
     @ClassRule
     public static final DropwizardAppRule appRule = new DropwizardAppRule<AppConfig>(ConnectionLeakApp.class, getAbsolutePath());
+    public static final int ExXPECTED_STATUS_CODE_OF_PING_GOOGLE_TEST = 200;
+    private Client client = new JerseyClientBuilder(appRule.getEnvironment()).build("");
+
 
 
     private static String getAbsolutePath()  {
@@ -32,12 +35,13 @@ public class PingGoogleResourceTest {
 
     @Test
     public void testPingGoogle(){
-        Environment environment = appRule.getEnvironment();
-        Client client = new JerseyClientBuilder(environment).build("");
-        ClientResponse clientResponse = client.resource("http://localhost:" + appRule.getLocalPort() + "/ping-google").get(ClientResponse.class);
-        Assert.assertEquals(200, clientResponse.getStatus());
-        String responseAsString = clientResponse.getEntity(String.class);
-        appRule.getLocalPort();
+
+        ClientResponse clientResponse = client.resource("http://localhost:" + appRule.getLocalPort() + "/google-status").get(ClientResponse.class);
+        assertEquals(ExXPECTED_STATUS_CODE_OF_PING_GOOGLE_TEST, clientResponse.getStatus());
+        assertEquals("Google is returning a 200 response", clientResponse.getEntity(String.class));
+        clientResponse.close();
     }
+
+
 
 }
