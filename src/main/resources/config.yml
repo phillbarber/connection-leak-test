@@ -1,5 +1,5 @@
 
-# Dropwizard server configuration
+# Default server configuration for deployed environments
 server:
   applicationConnectors:
   - type: http
@@ -7,6 +7,3 @@ server:
   adminConnectors:
   - type: http
     port: 8081
-
-jerseyClientConfiguration:
-  maxConnections: 1

@@ -1,5 +1,5 @@
 
-# Dropwizard server configuration
+# Server configuration for unit tests - do not use for production!
 server:
   applicationConnectors:
   - type: http
@@ -8,5 +8,6 @@ server:
   - type: http
     port: 8081
 
+#Set max connections to 1 to make it easy to find connection leaks
 jerseyClientConfiguration:
   maxConnections: 1
