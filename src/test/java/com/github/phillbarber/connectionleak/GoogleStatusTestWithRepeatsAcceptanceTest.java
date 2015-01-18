@@ -1,5 +1,6 @@
 package com.github.phillbarber.connectionleak;
 
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.io.Resources;
 import com.sun.jersey.api.client.Client;
@@ -12,50 +13,52 @@ import org.junit.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
-
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
 
-public class GoogleStatusTestWithBeforeAndAfterAssertions {
-
+public class GoogleStatusTestWithRepeatsAcceptanceTest {
 
     @ClassRule
-    public static final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class, getAbsolutePath());
+    public static final DropwizardAppRule appRule = new DropwizardAppRule<AppConfig>(ConnectionLeakApp.class, getAbsolutePath());
+    private static final int SIZE_OF_CONNECTION_POOL = 1;
 
     @Rule
+    //ToDo look into replacing this with a test that is org.junit.runners.Parameterized
     public RepeatRule repeatRule = new RepeatRule();
 
     private Client client = new Client();
 
     private static String getAbsolutePath()  {
         try {
-            //can load default production config here
-            return new File(Resources.getResource("config-default.yml").toURI()).getAbsolutePath();
+            return new File(Resources.getResource("config-with-tiny-connection-pool.yml").toURI()).getAbsolutePath();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
+
     @Test
+    @Repeat(times= SIZE_OF_CONNECTION_POOL+1)
     public void googleStatusPageReturns200Response(){
-        int leasedConnectionsBefore = getLeasedConnections();
         ClientResponse clientResponse = googleStatusResource().get(ClientResponse.class);
         assertThat(clientResponse.getStatus(), equalTo(200));
-        assertThat(leasedConnectionsBefore, equalTo(getLeasedConnections()));
     }
 
-
-    private int getLeasedConnections(){
-        return client.resource("http://localhost:" + appRule.getAdminPort()).path("/metrics")
-                .get(JsonNode.class)
+    @Test
+    public void ensureConnectionPoolIsOfSize1(){
+        assertThat(getMetricsResource().get(JsonNode.class)
                 .get("gauges")
-                .get("org.apache.http.conn.ClientConnectionManager.google-resource-http-client.leased-connections")
-                .get("value").asInt();
+                .get("org.apache.http.conn.ClientConnectionManager.google-resource-http-client.max-connections")
+                .get("value").asInt(), equalTo(SIZE_OF_CONNECTION_POOL));
 
     }
 
     private WebResource googleStatusResource() {
         return client.resource("http://localhost:" + appRule.getLocalPort()).path("/google-status");
+    }
+
+    private WebResource getMetricsResource() {
+        return client.resource("http://localhost:" + appRule.getAdminPort()).path("/metrics");
     }
 
 
