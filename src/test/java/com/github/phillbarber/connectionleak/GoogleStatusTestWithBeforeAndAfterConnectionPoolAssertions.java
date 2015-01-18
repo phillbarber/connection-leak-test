@@ -30,7 +30,8 @@ public class GoogleStatusTestWithBeforeAndAfterConnectionPoolAssertions {
 
     private static String getAbsolutePath()  {
         try {
-            return new File(Resources.getResource("config-with-tiny-connection-pool.yml").toURI()).getAbsolutePath();
+            //can load default production config here
+            return new File(Resources.getResource("config-default.yml").toURI()).getAbsolutePath();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -45,10 +46,11 @@ public class GoogleStatusTestWithBeforeAndAfterConnectionPoolAssertions {
     }
 
 
+    //ToDo does this cause an issue if there are two connections pools?
     private int getLeasedConnections(){
         return getMetricsResource().get(JsonNode.class)
                 .get("gauges")
-                .get("org.apache.http.conn.ClientConnectionManager.ConnectionLeakApp.leased-connections")
+                .get("org.apache.http.conn.ClientConnectionManager.google-resource-http-client.leased-connections")
                 .get("value").asInt();
 
     }

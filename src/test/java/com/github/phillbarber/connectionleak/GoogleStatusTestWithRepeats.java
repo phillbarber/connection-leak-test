@@ -48,7 +48,7 @@ public class GoogleStatusTestWithRepeats {
     public void ensureConnectionPoolIsOfSize1(){
         assertThat(getMetricsResource().get(JsonNode.class)
                 .get("gauges")
-                .get("org.apache.http.conn.ClientConnectionManager.ConnectionLeakApp.max-connections")
+                .get("org.apache.http.conn.ClientConnectionManager.google-resource-http-client.max-connections")
                 .get("value").asInt(), equalTo(SIZE_OF_CONNECTION_POOL));
 
     }

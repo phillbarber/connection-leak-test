@@ -7,3 +7,8 @@ server:
   adminConnectors:
   - type: http
     port: 8081
+
+
+jerseyClientConfiguration:
+  timeout: 1000 ms
+  connectionTimeout: 1000 ms

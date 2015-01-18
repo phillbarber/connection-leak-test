@@ -20,16 +20,16 @@ public class ConnectionLeakApp extends Application<AppConfig> {
     public void run(AppConfig appConfig, Environment environment) throws Exception {
 
         final Client client = new JerseyClientBuilder(environment).using(appConfig.getJerseyClientConfiguration())
-                .build(getName());
+                .build("google-resource-http-client");
 
 
         //environment.jersey().register(new GoogleStatusResourceWithAConnectionLeak(client));
-        environment.jersey().register(new GoogleStatusResourceWithAConnectionLeak(client));
+        environment.jersey().register(new GoogleStatusResourceWithNoConnectionLeak(client));
     }
 
     public static void main(String[] args) throws Exception{
         if (args == null || args.length == 0) {
-            args = new String[]{"server", new File(Resources.getResource("config.yml").toURI()).getAbsolutePath()};
+            args = new String[]{"server", new File(Resources.getResource("config-default.yml").toURI()).getAbsolutePath()};
         }
 
         new ConnectionLeakApp().run(args);
