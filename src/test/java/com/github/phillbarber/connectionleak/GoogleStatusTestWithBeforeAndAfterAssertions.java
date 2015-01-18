@@ -16,12 +16,11 @@ import java.net.URISyntaxException;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class GoogleStatusTestWithBeforeAndAfterConnectionPoolAssertions {
+public class GoogleStatusTestWithBeforeAndAfterAssertions {
 
 
     @ClassRule
-    public static final DropwizardAppRule appRule = new DropwizardAppRule<AppConfig>(ConnectionLeakApp.class, getAbsolutePath());
-    private static final int SIZE_OF_CONNECTION_POOL = 1;
+    public static final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class, getAbsolutePath());
 
     @Rule
     public RepeatRule repeatRule = new RepeatRule();
@@ -46,9 +45,9 @@ public class GoogleStatusTestWithBeforeAndAfterConnectionPoolAssertions {
     }
 
 
-    //ToDo does this cause an issue if there are two connections pools?
     private int getLeasedConnections(){
-        return getMetricsResource().get(JsonNode.class)
+        return client.resource("http://localhost:" + appRule.getAdminPort()).path("/metrics")
+                .get(JsonNode.class)
                 .get("gauges")
                 .get("org.apache.http.conn.ClientConnectionManager.google-resource-http-client.leased-connections")
                 .get("value").asInt();
@@ -59,8 +58,5 @@ public class GoogleStatusTestWithBeforeAndAfterConnectionPoolAssertions {
         return client.resource("http://localhost:" + appRule.getLocalPort()).path("/google-status");
     }
 
-    private WebResource getMetricsResource() {
-        return client.resource("http://localhost:" + appRule.getAdminPort()).path("/metrics");
-    }
 
 }
