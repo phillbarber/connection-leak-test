@@ -23,6 +23,7 @@ public class ConnectionLeakApp extends Application<AppConfig> {
                 .build(getName());
 
 
+        //environment.jersey().register(new GoogleStatusResourceWithAConnectionLeak(client));
         environment.jersey().register(new GoogleStatusResourceWithAConnectionLeak(client));
     }
 
