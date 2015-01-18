@@ -22,6 +22,7 @@ public class GoogleStatusTestWithRepeatsAcceptanceTest {
     public static final DropwizardAppRule appRule = new DropwizardAppRule<AppConfig>(ConnectionLeakApp.class, getAbsolutePath());
     private static final int SIZE_OF_CONNECTION_POOL = 1;
 
+
     @Rule
     //ToDo look into replacing this with a test that is org.junit.runners.Parameterized
     public RepeatRule repeatRule = new RepeatRule();
@@ -48,7 +49,7 @@ public class GoogleStatusTestWithRepeatsAcceptanceTest {
     public void ensureConnectionPoolIsOfSize1(){
         assertThat(getMetricsResource().get(JsonNode.class)
                 .get("gauges")
-                .get("org.apache.http.conn.ClientConnectionManager.google-resource-http-client.max-connections")
+                .get("org.apache.http.conn.ClientConnectionManager." + AppConfig.GOOGLE_RESOURCE_HTTP_CLIENT + ".max-connections")
                 .get("value").asInt(), equalTo(SIZE_OF_CONNECTION_POOL));
 
     }

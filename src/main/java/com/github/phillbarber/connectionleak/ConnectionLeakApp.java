@@ -20,7 +20,7 @@ public class ConnectionLeakApp extends Application<AppConfig> {
     public void run(AppConfig appConfig, Environment environment) throws Exception {
 
         final Client client = new JerseyClientBuilder(environment).using(appConfig.getJerseyClientConfiguration())
-                .build("google-resource-http-client");
+                .build(AppConfig.GOOGLE_RESOURCE_HTTP_CLIENT);
 
 
         //environment.jersey().register(new GoogleStatusResourceWithAConnectionLeak(client));

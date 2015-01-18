@@ -9,6 +9,9 @@ import javax.validation.constraints.NotNull;
 
 public class AppConfig extends Configuration {
 
+
+    public static final String GOOGLE_RESOURCE_HTTP_CLIENT = "google-resource-http-client";
+
     @Valid
     @NotNull
     @JsonProperty
