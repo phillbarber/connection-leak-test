@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 
-public class GoogleStatusTestWithRepeatsAcceptanceTest {
+public class UsefulServiceTestWithRepeatsAcceptanceTest {
 
     @ClassRule
     public static final DropwizardAppRule appRule = new DropwizardAppRule<AppConfig>(ConnectionLeakApp.class, getAbsolutePath());
@@ -49,13 +49,13 @@ public class GoogleStatusTestWithRepeatsAcceptanceTest {
     public void ensureConnectionPoolIsOfSize1(){
         assertThat(getMetricsResource().get(JsonNode.class)
                 .get("gauges")
-                .get("org.apache.http.conn.ClientConnectionManager." + AppConfig.GOOGLE_RESOURCE_HTTP_CLIENT + ".max-connections")
+                .get("org.apache.http.conn.ClientConnectionManager." + AppConfig.USEFUL_SERVICE_HTTP_CLIENT + ".max-connections")
                 .get("value").asInt(), equalTo(SIZE_OF_CONNECTION_POOL));
 
     }
 
     private WebResource googleStatusResource() {
-        return client.resource("http://localhost:" + appRule.getLocalPort()).path("/google-status");
+        return client.resource("http://localhost:" + appRule.getLocalPort()).path(AppConfig.CONNECTION_LEAK_APP_USEFUL_SERVICE_URI);
     }
 
     private WebResource getMetricsResource() {

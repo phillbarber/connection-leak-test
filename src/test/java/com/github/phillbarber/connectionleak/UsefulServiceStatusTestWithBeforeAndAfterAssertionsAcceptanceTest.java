@@ -10,13 +10,14 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.net.URISyntaxException;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class GoogleStatusTestWithBeforeAndAfterAssertionsAcceptanceTest {
+public class UsefulServiceStatusTestWithBeforeAndAfterAssertionsAcceptanceTest {
 
 
     @ClassRule
@@ -37,10 +38,11 @@ public class GoogleStatusTestWithBeforeAndAfterAssertionsAcceptanceTest {
     }
 
     @Test
-    public void googleStatusPageReturns200Response(){
+    public void usefulServiceStatusReturnsOKMessage(){
         int leasedConnectionsBefore = getLeasedConnections();
-        ClientResponse clientResponse = googleStatusResource().get(ClientResponse.class);
-        assertThat(clientResponse.getStatus(), equalTo(200));
+        ClientResponse clientResponse = usefulServiceStatusResource().get(ClientResponse.class);
+        assertThat(clientResponse.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
+        assertThat(clientResponse.getEntity(String.class), equalTo("The useful service is OK"));
         assertThat(leasedConnectionsBefore, equalTo(getLeasedConnections()));
     }
 
@@ -49,13 +51,13 @@ public class GoogleStatusTestWithBeforeAndAfterAssertionsAcceptanceTest {
         return client.resource("http://localhost:" + appRule.getAdminPort()).path("/metrics")
                 .get(JsonNode.class)
                 .get("gauges")
-                .get("org.apache.http.conn.ClientConnectionManager.google-resource-http-client.leased-connections")
-                .get("value").asInt();
+                .get("org.apache.http.conn.ClientConnectionManager." + AppConfig.USEFUL_SERVICE_HTTP_CLIENT + ".leased - connections")
+                        .get("value").asInt();
 
     }
 
-    private WebResource googleStatusResource() {
-        return client.resource("http://localhost:" + appRule.getLocalPort()).path("/google-status");
+    private WebResource usefulServiceStatusResource() {
+        return client.resource("http://localhost:" + appRule.getLocalPort()).path(AppConfig.CONNECTION_LEAK_APP_USEFUL_SERVICE_URI);
     }
 
 
