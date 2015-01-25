@@ -10,7 +10,6 @@
 
     <properties>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-        <cucumber.version>1.1.5</cucumber.version>
         <junit.version>4.11</junit.version>
         <dw.version>0.7.1</dw.version>
         <target-jdk>1.8</target-jdk>

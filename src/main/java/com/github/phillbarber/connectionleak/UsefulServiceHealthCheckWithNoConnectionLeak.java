@@ -20,7 +20,7 @@ public class UsefulServiceHealthCheckWithNoConnectionLeak extends HealthCheck{
 
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         ClientResponse clientResponse = null;
         String result = "Unknown";
 

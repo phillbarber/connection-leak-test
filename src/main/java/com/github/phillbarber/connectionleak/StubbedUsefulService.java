@@ -1,6 +1,7 @@
 package com.github.phillbarber.connectionleak;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 
 import javax.ws.rs.core.Response;
 
@@ -18,13 +19,17 @@ public class StubbedUsefulService {
     private int port;
 
     public StubbedUsefulService(int port) {
-        wireMockServer = new WireMockServer(wireMockConfig().port(port));
+        wireMockServer = new WireMockServer(wireMockConfig().containerThreads(1000000).jettyAcceptors(1000).port(port));
         this.port = port;
     }
 
     public void startStubbedUsefulService() {
         wireMockServer.start();
-        wireMockServer.stubFor(get(urlEqualTo("/version")).willReturn(aResponse().withStatus(Response.Status.OK.getStatusCode()).withBody("1.1")));
+        wireMockServer.stubFor(addStubForversionPageThatReturnsOK());
+    }
+
+    private MappingBuilder addStubForversionPageThatReturnsOK() {
+        return get(urlEqualTo("/version")).willReturn(aResponse().withStatus(Response.Status.OK.getStatusCode()).withBody("1.1"));
     }
 
     public URI getVersionURL(){

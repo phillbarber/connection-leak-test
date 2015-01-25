@@ -4,6 +4,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+//Thanks to Frank Appel http://www.codeaffine.com/author/fappel/
+//http://www.codeaffine.com/2013/04/10/running-junit-tests-repeatedly-without-loops/
 public class RepeatRule implements TestRule {
 
     private static class RepeatStatement extends Statement {

@@ -47,6 +47,7 @@ public class UsefulServiceTestWithRepeatsAcceptanceTest {
 
     @Test
     public void ensureConnectionPoolIsOfSize1(){
+        //this could also be achieved by looking in the AppConfig
         assertThat(getMetricsResource().get(JsonNode.class)
                 .get("gauges")
                 .get("org.apache.http.conn.ClientConnectionManager." + AppConfig.USEFUL_SERVICE_HTTP_CLIENT + ".max-connections")
