@@ -5,19 +5,20 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
 import javax.ws.rs.core.Response;
+import java.net.URI;
 
 public class UsefulServiceHealthCheckWithConnectionLeak extends HealthCheck {
 
     private Client usefulServiceClient;
-    private String usefulServiceStatusURI;
+    private URI usefulServiceStatusURI;
 
-    public UsefulServiceHealthCheckWithConnectionLeak(Client usefulServiceClient, String usefulServiceStatusURI) {
+    public UsefulServiceHealthCheckWithConnectionLeak(Client usefulServiceClient, URI usefulServiceStatusURI) {
         this.usefulServiceClient = usefulServiceClient;
         this.usefulServiceStatusURI = usefulServiceStatusURI;
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         ClientResponse clientResponse = usefulServiceClient.resource(usefulServiceStatusURI).get(ClientResponse.class);
         if (clientResponse.getStatus() == Response.Status.OK.getStatusCode()){
             return Result.healthy();

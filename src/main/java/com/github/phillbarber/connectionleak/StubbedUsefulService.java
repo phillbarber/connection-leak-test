@@ -1,4 +1,38 @@
 package com.github.phillbarber.connectionleak;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+
+import javax.ws.rs.core.Response;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 public class StubbedUsefulService {
+
+    private WireMockServer wireMockServer;
+    private int port;
+
+    public StubbedUsefulService(int port) {
+        wireMockServer = new WireMockServer(wireMockConfig().port(port));
+        this.port = port;
+    }
+
+    public void startStubbedUsefulService() {
+        wireMockServer.start();
+        wireMockServer.stubFor(get(urlEqualTo("/version")).willReturn(aResponse().withStatus(Response.Status.OK.getStatusCode()).withBody("1.1")));
+    }
+
+    public URI getVersionURL(){
+        try {
+            return new URI(String.format("http://localhost:%d/version", port));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

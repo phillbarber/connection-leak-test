@@ -5,14 +5,15 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 
 import javax.ws.rs.core.Response;
+import java.net.URI;
 
 
 public class UsefulServiceHealthCheckWithNoConnectionLeak extends HealthCheck{
 
     private Client client;
-    private String usefulServiceStatusURI;
+    private URI usefulServiceStatusURI;
 
-    public UsefulServiceHealthCheckWithNoConnectionLeak(Client client, String usefulServiceStatusURI) {
+    public UsefulServiceHealthCheckWithNoConnectionLeak(Client client, URI usefulServiceStatusURI) {
         this.client = client;
         this.usefulServiceStatusURI = usefulServiceStatusURI;
     }

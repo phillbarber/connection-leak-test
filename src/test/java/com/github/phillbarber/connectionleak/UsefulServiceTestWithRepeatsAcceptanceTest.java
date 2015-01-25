@@ -41,7 +41,7 @@ public class UsefulServiceTestWithRepeatsAcceptanceTest {
     @Test
     @Repeat(times= SIZE_OF_CONNECTION_POOL+1)
     public void googleStatusPageReturns200Response(){
-        ClientResponse clientResponse = googleStatusResource().get(ClientResponse.class);
+        ClientResponse clientResponse = connectionLeakAppHealthCheckResource().get(ClientResponse.class);
         assertThat(clientResponse.getStatus(), equalTo(200));
     }
 
@@ -54,8 +54,8 @@ public class UsefulServiceTestWithRepeatsAcceptanceTest {
 
     }
 
-    private WebResource googleStatusResource() {
-        return client.resource("http://localhost:" + appRule.getLocalPort()).path(AppConfig.CONNECTION_LEAK_APP_USEFUL_SERVICE_URI);
+    private WebResource connectionLeakAppHealthCheckResource() {
+        return client.resource("http://localhost:" + appRule.getAdminPort()).path(AppConfig.CONNECTION_LEAK_APP_HEALTHCHECK_URI);
     }
 
     private WebResource getMetricsResource() {

@@ -38,11 +38,10 @@ public class UsefulServiceStatusTestWithBeforeAndAfterAssertionsAcceptanceTest {
     }
 
     @Test
-    public void usefulServiceStatusReturnsOKMessage(){
+    public void connectionLeakAppHealthCheckReturnsOK(){
         int leasedConnectionsBefore = getLeasedConnections();
-        ClientResponse clientResponse = usefulServiceStatusResource().get(ClientResponse.class);
+        ClientResponse clientResponse = connectionLeakAppHealthCheckResource().get(ClientResponse.class);
         assertThat(clientResponse.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
-        assertThat(clientResponse.getEntity(String.class), equalTo("The useful service is OK"));
         assertThat(leasedConnectionsBefore, equalTo(getLeasedConnections()));
     }
 
@@ -51,13 +50,13 @@ public class UsefulServiceStatusTestWithBeforeAndAfterAssertionsAcceptanceTest {
         return client.resource("http://localhost:" + appRule.getAdminPort()).path("/metrics")
                 .get(JsonNode.class)
                 .get("gauges")
-                .get("org.apache.http.conn.ClientConnectionManager." + AppConfig.USEFUL_SERVICE_HTTP_CLIENT + ".leased - connections")
+                .get("org.apache.http.conn.ClientConnectionManager." + AppConfig.USEFUL_SERVICE_HTTP_CLIENT + ".leased-connections")
                         .get("value").asInt();
 
     }
 
-    private WebResource usefulServiceStatusResource() {
-        return client.resource("http://localhost:" + appRule.getLocalPort()).path(AppConfig.CONNECTION_LEAK_APP_USEFUL_SERVICE_URI);
+    private WebResource connectionLeakAppHealthCheckResource() {
+        return client.resource("http://localhost:" + appRule.getAdminPort()).path(AppConfig.CONNECTION_LEAK_APP_HEALTHCHECK_URI);
     }
 
 
