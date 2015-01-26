@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 
 
-public class UsefulServiceHealthCheckWithNoConnectionLeak extends HealthCheck{
+public class UsefulServiceHealthCheckWithNoConnectionLeak extends HealthCheck implements UsefulServiceHealthCheck{
 
     private Client client;
     private URI usefulServiceStatusURI;
@@ -20,7 +20,7 @@ public class UsefulServiceHealthCheckWithNoConnectionLeak extends HealthCheck{
 
 
     @Override
-    protected Result check() {
+    public Result check() {
         ClientResponse clientResponse = null;
         String result = "Unknown";
 

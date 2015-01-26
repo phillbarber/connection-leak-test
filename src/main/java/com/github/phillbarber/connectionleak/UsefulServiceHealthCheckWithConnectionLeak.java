@@ -7,7 +7,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
-public class UsefulServiceHealthCheckWithConnectionLeak extends HealthCheck {
+public class UsefulServiceHealthCheckWithConnectionLeak extends HealthCheck implements UsefulServiceHealthCheck {
 
     private Client usefulServiceClient;
     private URI usefulServiceStatusURI;
@@ -18,7 +18,7 @@ public class UsefulServiceHealthCheckWithConnectionLeak extends HealthCheck {
     }
 
     @Override
-    protected Result check() {
+    public Result check() {
         ClientResponse clientResponse = usefulServiceClient.resource(usefulServiceStatusURI).get(ClientResponse.class);
         if (clientResponse.getStatus() == Response.Status.OK.getStatusCode()){
             return Result.healthy();

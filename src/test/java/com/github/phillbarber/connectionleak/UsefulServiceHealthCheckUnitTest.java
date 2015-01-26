@@ -22,7 +22,7 @@ public class UsefulServiceHealthCheckUnitTest {
     //(with wiremock set to following config.... containerThreads(1000000).jettyAcceptors(1000)....  java.net.SocketException: Too many open files: Too many open files at sun.nio.ch.ServerSocketChannelImpl.accept0(Native Method) ~[na:na]
     //OR (with wiremock set for 10000 threads) com.sun.jersey.api.client.ClientHandlerException: java.net.NoRouteToHostException: Cannot assign requested address
 
-    private UsefulServiceHealthCheckWithConnectionLeak healthCheck;
+    private UsefulServiceHealthCheck healthCheck;
 
 
 
