@@ -12,7 +12,7 @@ public class AppConfig extends Configuration {
 
     public static final String USEFUL_SERVICE_HTTP_CLIENT = "useful-service-http-client";
 
-    public static final String CONNECTION_LEAK_APP_HEALTHCHECK_URI = "/healthcheck";
+    public static final String HEALTHCHECK_URI = "/healthcheck";
 
     public static final int USEFUL_SERVICE_PORT = 7070;
     public static final String USEFUL_SERVICE_VERSION_URI = String.format("http://localhost:%d/version", USEFUL_SERVICE_PORT);

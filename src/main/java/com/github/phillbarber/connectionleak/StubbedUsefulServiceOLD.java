@@ -13,12 +13,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class StubbedUsefulService {
+public class StubbedUsefulServiceOLD {
 
     private WireMockServer wireMockServer;
     private int port;
 
-    public StubbedUsefulService(int port) {
+    public StubbedUsefulServiceOLD(int port) {
         wireMockServer = new WireMockServer(wireMockConfig().containerThreads(1000000).jettyAcceptors(1000).port(port));
         this.port = port;
     }

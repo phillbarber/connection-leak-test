@@ -1,20 +1,20 @@
 package com.github.phillbarber.connectionleak;
 
-import com.google.common.io.Resources;
 import com.sun.jersey.api.client.Client;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-import javax.ws.rs.Path;
-import java.io.File;
+import java.net.URI;
 
 public class ConnectionLeakApp extends Application<AppConfig> {
 
 
     public static final String USEFUL_SERVICE_HEALTH_CHECK = "useful-service-health-check";
-    private StubbedUsefulService stubbedUsefulService;
+    public static final String DEFAULT_CONFIG_FILE = "config-default.yml";
+    public static final String CONNECTION_POOL_OF_SIZE_ONE_CONFIG_FILE = "config-with-connection-pool-of-size-one.yml";
+
 
     @Override
     public void initialize(Bootstrap<AppConfig> bootstrap) {  }
@@ -23,30 +23,22 @@ public class ConnectionLeakApp extends Application<AppConfig> {
     @Override
     public void run(AppConfig appConfig, Environment environment) throws Exception {
 
-        //start a stubbed useful service with wiremock
-        stubbedUsefulService = new StubbedUsefulService(AppConfig.USEFUL_SERVICE_PORT);
-        stubbedUsefulService.startStubbedUsefulService();
 
         final Client client = new JerseyClientBuilder(environment).using(appConfig.getJerseyClientConfiguration())
                 .build(AppConfig.USEFUL_SERVICE_HTTP_CLIENT);
 
-        //environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithConnectionLeak(client, stubbedUsefulService.getVersionURL()));
-        environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithNoConnectionLeak(client, stubbedUsefulService.getVersionURL()));
-
+        //environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI)));
+        environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithNoConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI)));
         environment.jersey().register(new HelloWorldResource());
 
     }
 
-
-
     public static void main(String[] args) throws Exception{
 
         if (args == null || args.length == 0) {
-            args = new String[]{"server", new File(Resources.getResource("config-default.yml").toURI()).getAbsolutePath()};
+            args = new String[]{"server", ResourceFileUtils.getFileFromClassPath(DEFAULT_CONFIG_FILE).getAbsolutePath()};
         }
 
         new ConnectionLeakApp().run(args);
     }
-
-
 }

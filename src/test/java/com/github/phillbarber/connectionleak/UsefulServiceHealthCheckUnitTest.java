@@ -1,15 +1,23 @@
 package com.github.phillbarber.connectionleak;
 
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.net.URISyntaxException;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
 
 
 public class UsefulServiceHealthCheckUnitTest {
@@ -22,24 +30,20 @@ public class UsefulServiceHealthCheckUnitTest {
     //(with wiremock set to following config.... containerThreads(1000000).jettyAcceptors(1000)....  java.net.SocketException: Too many open files: Too many open files at sun.nio.ch.ServerSocketChannelImpl.accept0(Native Method) ~[na:na]
     //OR (with wiremock set for 10000 threads) com.sun.jersey.api.client.ClientHandlerException: java.net.NoRouteToHostException: Cannot assign requested address
 
-    private UsefulServiceHealthCheck healthCheck;
-
-
-
-    private StubbedUsefulService stubbedUsefulService;
-
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(USEFUL_SERVICE_PORT);
 
     @Before
     public void setUp() throws Exception {
-        stubbedUsefulService = new StubbedUsefulService(AppConfig.USEFUL_SERVICE_PORT);
-        stubbedUsefulService.startStubbedUsefulService();
-        healthCheck =  new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI));  //failing test;
+        new StubbedUsefulService(wireMockRule).addStubForVersionPage();
     }
 
-    @Test
-    public void googleStatusPageReturns200Response(){
 
-        //cc.
+
+    @Test
+    public void googleStatusPageReturns200Response() throws URISyntaxException {
+
+        UsefulServiceHealthCheck healthCheck =  new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI));  //failing test;
 
         int leasedConnectionsBefore = getLeasedConnections();
         for (int i = 0; i<100000; i++){
