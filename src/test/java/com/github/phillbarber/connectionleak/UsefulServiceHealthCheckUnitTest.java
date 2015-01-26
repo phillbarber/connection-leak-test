@@ -8,16 +8,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
 
 
 public class UsefulServiceHealthCheckUnitTest {
