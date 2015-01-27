@@ -23,22 +23,25 @@ public class AcceptanceTestThatRunsMoreTimesThanServerCanTakeConnections {
     @ClassRule
     public static final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class,
             ResourceFileUtils.getFileFromClassPath(ConnectionLeakApp.DEFAULT_CONFIG_FILE).getAbsolutePath());
-    private static final int SIZE_OF_CONNECTION_POOL = 1;
+    public static final int CONTAINER_THREADS = 2;
 
     @Rule
     //ToDo look into replacing this with a test that is org.junit.runners.Parameterized
     public RepeatRule repeatRule = new RepeatRule();
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(1).jettyAcceptQueueSize(1).port(USEFUL_SERVICE_PORT));
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(1).jettyAcceptQueueSize(1).containerThreads(CONTAINER_THREADS).port(USEFUL_SERVICE_PORT));
 
     @Before
     public void setUp() throws Exception {
         new StubbedUsefulService(wireMockRule).addStubForVersionPage();
     }
 
+    //The behaviour of jetty at this point confuses me. This test fails when we execute the same number of times as we
+    //have jetty container thread, not container threads + 1.  There must be a thread in Jetty doing something else - perhaps
+    //wiremock is doing something with the extra thread?
     @Test
-    @Repeat(times= 2)
+    @Repeat(times=CONTAINER_THREADS)
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy(){
         ClientResponse clientResponse = getAdminResource(AppConfig.HEALTHCHECK_URI).get(ClientResponse.class);
         assertThat(clientResponse.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
