@@ -22,7 +22,7 @@ public class AcceptanceTestThatRunsMoreTimesThanServerCanTakeConnections {
 
     @ClassRule
     public static final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class,
-            ResourceFileUtils.getFileFromClassPath(ConnectionLeakApp.CONNECTION_POOL_OF_SIZE_ONE_CONFIG_FILE).getAbsolutePath());
+            ResourceFileUtils.getFileFromClassPath(ConnectionLeakApp.DEFAULT_CONFIG_FILE).getAbsolutePath());
     private static final int SIZE_OF_CONNECTION_POOL = 1;
 
     @Rule
@@ -30,16 +30,15 @@ public class AcceptanceTestThatRunsMoreTimesThanServerCanTakeConnections {
     public RepeatRule repeatRule = new RepeatRule();
 
     @Rule
-    public WireMockRule wireMockRule;
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(1).jettyAcceptQueueSize(1).port(USEFUL_SERVICE_PORT));
 
     @Before
     public void setUp() throws Exception {
-        wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(1).containerThreads(1).port(USEFUL_SERVICE_PORT));
         new StubbedUsefulService(wireMockRule).addStubForVersionPage();
     }
 
     @Test
-    @Repeat(times= SIZE_OF_CONNECTION_POOL)
+    @Repeat(times= 2)
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy(){
         ClientResponse clientResponse = getAdminResource(AppConfig.HEALTHCHECK_URI).get(ClientResponse.class);
         assertThat(clientResponse.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
