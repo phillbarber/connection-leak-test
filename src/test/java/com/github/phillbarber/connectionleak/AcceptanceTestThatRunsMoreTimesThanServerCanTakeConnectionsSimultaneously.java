@@ -1,6 +1,5 @@
 package com.github.phillbarber.connectionleak;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -18,30 +17,30 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class AcceptanceTestThatRunsMoreTimesThanServerCanTakeConnections {
+public class AcceptanceTestThatRunsMoreTimesThanServerCanTakeConnectionsSimultaneously {
 
     @ClassRule
     public static final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class,
             ResourceFileUtils.getFileFromClassPath(ConnectionLeakApp.DEFAULT_CONFIG_FILE).getAbsolutePath());
-    public static final int CONTAINER_THREADS = 2;
+    public static final int NUMBER_OF_CONTAINER_THREADS = 2;
+    public static final int NUMBER_OF_JETTY_ACCEPTORS = 1;
 
     @Rule
-    //ToDo look into replacing this with a test that is org.junit.runners.Parameterized
     public RepeatRule repeatRule = new RepeatRule();
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(1).jettyAcceptQueueSize(1).containerThreads(CONTAINER_THREADS).port(USEFUL_SERVICE_PORT));
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(NUMBER_OF_JETTY_ACCEPTORS).jettyAcceptQueueSize(1).containerThreads(NUMBER_OF_CONTAINER_THREADS).port(USEFUL_SERVICE_PORT));
 
     @Before
     public void setUp() throws Exception {
         new StubbedUsefulService(wireMockRule).addStubForVersionPage();
     }
 
-    //The behaviour of jetty at this point confuses me. This test fails when we execute the same number of times as we
-    //have jetty container thread, not container threads + 1.  There must be a thread in Jetty doing something else - perhaps
-    //wiremock is doing something with the extra thread?
+    //If there is a connection leak, this will fail if we run for one more iteration than there are threads to deal with
+    //connections. In this case, the number of threads to deal with connections is NUMBER_OF_CONTAINER_THREADS - NUMBER_OF_JETTY_ACCEPTORS
+    //since each acceptor occupies a thread.
     @Test
-    @Repeat(times=CONTAINER_THREADS)
+    @Repeat(times=(NUMBER_OF_CONTAINER_THREADS - NUMBER_OF_JETTY_ACCEPTORS)+1)
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy(){
         ClientResponse clientResponse = getAdminResource(AppConfig.HEALTHCHECK_URI).get(ClientResponse.class);
         assertThat(clientResponse.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
