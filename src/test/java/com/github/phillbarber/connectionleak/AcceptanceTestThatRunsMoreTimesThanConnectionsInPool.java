@@ -26,7 +26,6 @@ public class AcceptanceTestThatRunsMoreTimesThanConnectionsInPool {
     private static final int SIZE_OF_CONNECTION_POOL = 1;
 
     @Rule
-    //ToDo look into replacing this with a test that is org.junit.runners.Parameterized
     public RepeatRule repeatRule = new RepeatRule();
 
     @Rule
