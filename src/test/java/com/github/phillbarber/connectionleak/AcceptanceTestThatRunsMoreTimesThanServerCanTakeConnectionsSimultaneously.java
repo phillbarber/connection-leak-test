@@ -29,7 +29,7 @@ public class AcceptanceTestThatRunsMoreTimesThanServerCanTakeConnectionsSimultan
     public RepeatRule repeatRule = new RepeatRule();
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(NUMBER_OF_JETTY_ACCEPTORS).jettyAcceptQueueSize(1).containerThreads(NUMBER_OF_CONTAINER_THREADS).port(USEFUL_SERVICE_PORT));
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().jettyAcceptors(NUMBER_OF_JETTY_ACCEPTORS).containerThreads(NUMBER_OF_CONTAINER_THREADS).port(USEFUL_SERVICE_PORT));
 
     @Before
     public void setUp() throws Exception {
