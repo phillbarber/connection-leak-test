@@ -3,10 +3,8 @@ package com.github.phillbarber.connectionleak;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -15,17 +13,16 @@ import java.net.URISyntaxException;
 
 import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 
-public class UnitTestThatShowsHowDifferentClientsFail {
+@Ignore("Disabled by default as it can take ages to run.  Not recommended for your test suite, but interesting nonetheless.")
+public class UnitTestThatShowsUnderlyingOSRefusingToAllocateMoreConnections
+{
 
 
     public static final int LOTS_OF_TIMES = 100000;
-    private final DefaultClientConfig cc = new DefaultClientConfig();
 
-    //Allow lots of simultaneous ocnnections
+    //Allow lots of simultaneous connections
     public static final int NUMBER_OF_CONTAINER_THREADS = 1000000;
     public static final int NUMBER_OF_JETTY_ACCEPTORS = 1000;
 
@@ -39,22 +36,15 @@ public class UnitTestThatShowsHowDifferentClientsFail {
     }
 
     @Test
-    //This test will fail on the 2nd attempt since the BasicClientConnectionManager does not allow more than one connection open at any point in time
-    public void testWithApacheHttpClient4() throws URISyntaxException {
-        testLotsOfTimes(new ApacheHttpClient4());
-    }
-
-    @Test
-    @Ignore()//This test can take ages to run - disabled by default
     public void testWithStandardJerseyClient() throws URISyntaxException {
 
         /*
         The jersey client instance below does not use a connection pool.  In the absence of a pool, the breaking point
-        then becomes either the server (not with the wiremock config above that allows many open connections) or the
-        underlying OS eventually refusing to assign more connections (files) to the process and will/could give fail with
-        a java.net.SocketException: Too many open files
+        then becomes either the server or the underlying OS on the client refusing to assign too many connections to one
+        process.  In this example we have configured WireMock to allow many open connections so the client eventually
+        fails with a java.net.SocketException: Too many open files
         In my case this was after 12825 iterations
-        I have also seen this fail with the following exception: java.net.NoRouteToHostException: Cannot assign requested address
+        I'm sure that I have also seen this fail with: java.net.NoRouteToHostException: Cannot assign requested address
          */
 
         testLotsOfTimes(Client.create());

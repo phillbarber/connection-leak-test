@@ -27,8 +27,8 @@ public class ConnectionLeakApp extends Application<AppConfig> {
         final Client client = new JerseyClientBuilder(environment).using(appConfig.getJerseyClientConfiguration())
                 .build(AppConfig.USEFUL_SERVICE_HTTP_CLIENT);
 
+        //to fix all acceptance tests, replace the below line with.... environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithNoConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI)));
         environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI)));
-        //environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithNoConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI)));
         environment.jersey().register(new HelloWorldResource());
 
     }

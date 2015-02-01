@@ -2,18 +2,14 @@ package com.github.phillbarber.connectionleak;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.google.common.io.Resources;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.junit.*;
 
-import javax.ws.rs.core.Response;
-import java.io.File;
-import java.net.URISyntaxException;
-
 import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
+import static com.github.phillbarber.connectionleak.HealthCheckResponseChecker.hasHealthyMessage;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -52,7 +48,7 @@ public class AcceptanceTestThatExaminesConnectionPoolBeforeAndAfterRun {
     @Test
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy(){
         ClientResponse clientResponse = connectionLeakAppHealthCheckResource().get(ClientResponse.class);
-        assertThat(clientResponse.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
+        assertThat(clientResponse.getEntity(String.class), hasHealthyMessage());
     }
 
     private int getLeasedConnections(){

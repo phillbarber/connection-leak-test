@@ -12,9 +12,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response;
-
 import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
+import static com.github.phillbarber.connectionleak.HealthCheckResponseChecker.hasHealthyMessage;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -38,9 +37,11 @@ public class AcceptanceTestThatRunsMoreTimesThanConnectionsInPool {
 
     @Test
     @Repeat(times= SIZE_OF_CONNECTION_POOL+1)
+    //this will fail with a org.apache.http.conn.ConnectionPoolTimeoutException, Timeout waiting for connection from pool
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy(){
         ClientResponse clientResponse = getAdminResource(AppConfig.HEALTHCHECK_URI).get(ClientResponse.class);
-        assertThat(clientResponse.getStatus(), equalTo(Response.Status.OK.getStatusCode()));
+        assertThat(clientResponse.getEntity(String.class), hasHealthyMessage());
+
     }
 
     @Test
