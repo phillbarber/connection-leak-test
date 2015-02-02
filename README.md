@@ -1,3 +1,6 @@
+# Connection Leak Test
+
+A simple project that has a (deliberate) connection leak and tests that all fail due to the leak. 
 
 ![Architecture Diagram](architecture-diagram.png)
 
