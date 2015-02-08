@@ -17,4 +17,8 @@ public class StubbedUsefulService {
     public void addStubForVersionPageThatReturnsOK() {
         wireMockRule.stubFor(get(urlEqualTo("/version")).willReturn(aResponse().withStatus(Response.Status.OK.getStatusCode()).withBody("1.1")));
     }
+
+    public void addStubForVersionPageThatReturnsError() {
+        wireMockRule.stubFor(get(urlEqualTo("/version")).willReturn(aResponse().withStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).withBody("SERVER ERROR")));
+    }
 }

@@ -10,14 +10,15 @@ import org.junit.*;
 
 import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
 import static com.github.phillbarber.connectionleak.HealthCheckResponseChecker.hasHealthyMessage;
+import static com.github.phillbarber.connectionleak.HealthCheckResponseChecker.hasUnHealthyMessage;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AcceptanceTestThatExaminesConnectionPoolBeforeAndAfterRun {
 
 
-    @ClassRule
-    public static final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class,
+    @Rule
+    public final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class,
             ResourceFileUtils.getFileFromClassPath(ConnectionLeakApp.DEFAULT_CONFIG_FILE).getAbsolutePath());
 
     @Rule
@@ -31,11 +32,6 @@ public class AcceptanceTestThatExaminesConnectionPoolBeforeAndAfterRun {
     private int leasedConnectionsBefore;
 
     @Before
-    public void setUp() throws Exception {
-        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
-    }
-
-    @Before
     public void storeLeasedConnectionsBeforeTestRun(){
         leasedConnectionsBefore = getLeasedConnections();
     }
@@ -47,8 +43,16 @@ public class AcceptanceTestThatExaminesConnectionPoolBeforeAndAfterRun {
 
     @Test
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy(){
+        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
         ClientResponse clientResponse = connectionLeakAppHealthCheckResource().get(ClientResponse.class);
         assertThat(clientResponse.getEntity(String.class), hasHealthyMessage());
+    }
+
+    @Test
+    public void givenUsefulServicReturnsError_whenHealthCheckCalled_returnsNotHealthy(){
+        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsError();
+        ClientResponse clientResponse = connectionLeakAppHealthCheckResource().get(ClientResponse.class);
+        assertThat(clientResponse.getEntity(String.class), hasUnHealthyMessage());
     }
 
     private int getLeasedConnections(){

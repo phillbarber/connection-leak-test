@@ -22,15 +22,12 @@ public class ConnectionLeakApp extends Application<AppConfig> {
 
     @Override
     public void run(AppConfig appConfig, Environment environment) throws Exception {
-
-
         final Client client = new JerseyClientBuilder(environment).using(appConfig.getJerseyClientConfiguration())
                 .build(AppConfig.USEFUL_SERVICE_HTTP_CLIENT);
 
-        //to fix all acceptance tests, replace the below line with.... environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithNoConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI)));
+        //to fix all acceptance tests, replace the newing up of the healthcheck with the following concrete class: UsefulServiceHealthCheckWithNoConnectionLeak
         environment.healthChecks().register(USEFUL_SERVICE_HEALTH_CHECK, new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI)));
         environment.jersey().register(new HelloWorldResource());
-
     }
 
     public static void main(String[] args) throws Exception{

@@ -14,12 +14,13 @@ import org.junit.Test;
 
 import static com.github.phillbarber.connectionleak.AppConfig.USEFUL_SERVICE_PORT;
 import static com.github.phillbarber.connectionleak.HealthCheckResponseChecker.hasHealthyMessage;
+import static com.github.phillbarber.connectionleak.HealthCheckResponseChecker.hasUnHealthyMessage;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AcceptanceTestThatRunsMoreTimesThanConnectionsInPool {
 
-    @ClassRule
+    @ClassRule //Must be a static ClassRule as otherwise dropwizard will terminate after first execution
     public static final DropwizardAppRule<AppConfig> appRule = new DropwizardAppRule<>(ConnectionLeakApp.class,
             ResourceFileUtils.getFileFromClassPath(ConnectionLeakApp.CONNECTION_POOL_OF_SIZE_ONE_CONFIG_FILE).getAbsolutePath());
     private static final int SIZE_OF_CONNECTION_POOL = 1;
@@ -30,18 +31,23 @@ public class AcceptanceTestThatRunsMoreTimesThanConnectionsInPool {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(USEFUL_SERVICE_PORT);
 
-    @Before
-    public void setUp() throws Exception {
-        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
-    }
 
     @Test
     @Repeat(times= SIZE_OF_CONNECTION_POOL+1)
     //this will fail with a org.apache.http.conn.ConnectionPoolTimeoutException, Timeout waiting for connection from pool
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy(){
+        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
         ClientResponse clientResponse = getAdminResource(AppConfig.HEALTHCHECK_URI).get(ClientResponse.class);
         assertThat(clientResponse.getEntity(String.class), hasHealthyMessage());
 
+    }
+
+    @Test
+    @Repeat(times= SIZE_OF_CONNECTION_POOL+1)
+    public void givenUsefulServicReturnsError_whenHealthCheckCalled_returnsNotHealthy(){
+        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsError();
+        ClientResponse clientResponse = getAdminResource(AppConfig.HEALTHCHECK_URI).get(ClientResponse.class);
+        assertThat(clientResponse.getEntity(String.class), hasUnHealthyMessage());
     }
 
     @Test
