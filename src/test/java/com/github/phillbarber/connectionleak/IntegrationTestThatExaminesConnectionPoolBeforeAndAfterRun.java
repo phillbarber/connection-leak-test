@@ -21,14 +21,14 @@ public class IntegrationTestThatExaminesConnectionPoolBeforeAndAfterRun {
     public WireMockRule wireMockRule = new WireMockRule(USEFUL_SERVICE_PORT);
 
     private ApacheHttpClient4 client;
-    private PoolingHttpClientConnectionManager poolingHttpCLientCOnnectionManager = new PoolingHttpClientConnectionManager();
+    private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
 
     @Before
     public void setUp() throws Exception {
         new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
 
         client = new ApacheHttpClient4(new ApacheHttpClient4Handler(HttpClients.custom()
-                .setConnectionManager(poolingHttpCLientCOnnectionManager)
+                .setConnectionManager(poolingHttpClientConnectionManager)
                 .build(), null, false));
     }
 
@@ -39,6 +39,6 @@ public class IntegrationTestThatExaminesConnectionPoolBeforeAndAfterRun {
                 new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI));
 
         assertThat(healthCheck.check().isHealthy(), is(true));
-        assertThat(poolingHttpCLientCOnnectionManager.getTotalStats().getLeased(), is(0));
+        assertThat(poolingHttpClientConnectionManager.getTotalStats().getLeased(), is(0));
     }
 }
