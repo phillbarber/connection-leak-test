@@ -2,13 +2,10 @@ package com.github.phillbarber.connectionleak;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

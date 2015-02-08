@@ -4,9 +4,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 import javax.ws.rs.core.Response;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class StubbedUsefulService {
 
