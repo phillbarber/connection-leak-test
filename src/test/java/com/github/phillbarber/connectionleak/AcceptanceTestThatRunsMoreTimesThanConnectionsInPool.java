@@ -32,7 +32,7 @@ public class AcceptanceTestThatRunsMoreTimesThanConnectionsInPool {
 
     @Before
     public void setUp() throws Exception {
-        new StubbedUsefulService(wireMockRule).addStubForVersionPage();
+        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
     }
 
     @Test

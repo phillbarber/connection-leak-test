@@ -31,7 +31,7 @@ public class AcceptanceTestThatRunsMoreTimesThanServerCanTakeConnectionsSimultan
 
     @Before
     public void setUp() throws Exception {
-        new StubbedUsefulService(wireMockRule).addStubForVersionPage();
+        new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
     }
 
     //If there is a connection leak, this will fail if we run for one more iteration than there are threads to deal with
