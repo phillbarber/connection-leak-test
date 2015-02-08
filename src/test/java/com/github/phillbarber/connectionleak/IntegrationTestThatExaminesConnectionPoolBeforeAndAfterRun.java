@@ -21,7 +21,7 @@ public class IntegrationTestThatExaminesConnectionPoolBeforeAndAfterRun {
     public WireMockRule wireMockRule = new WireMockRule(USEFUL_SERVICE_PORT);
 
     private ApacheHttpClient4 client;
-    private PoolingHttpClientConnectionManager poolingHttpCLientCOnnectionManager = new PoolingHttpClientConnectionManager();;
+    private PoolingHttpClientConnectionManager poolingHttpCLientCOnnectionManager = new PoolingHttpClientConnectionManager();
 
     @Before
     public void setUp() throws Exception {
