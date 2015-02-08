@@ -1,6 +1,5 @@
 package com.github.phillbarber.connectionleak;
 
-import com.codahale.metrics.health.HealthCheck;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
@@ -22,24 +21,24 @@ public class IntegrationTestThatExaminesConnectionPoolBeforeAndAfterRun {
     public WireMockRule wireMockRule = new WireMockRule(USEFUL_SERVICE_PORT);
 
     private ApacheHttpClient4 client;
-    private PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();;
+    private PoolingHttpClientConnectionManager poolingHttpCLientCOnnectionManager = new PoolingHttpClientConnectionManager();;
 
     @Before
     public void setUp() throws Exception {
         new StubbedUsefulService(wireMockRule).addStubForVersionPageThatReturnsOK();
 
         client = new ApacheHttpClient4(new ApacheHttpClient4Handler(HttpClients.custom()
-                .setConnectionManager(cm)
+                .setConnectionManager(poolingHttpCLientCOnnectionManager)
                 .build(), null, false));
     }
 
 
     @Test
     public void givenUsefulServiceIsOK_whenHealthCheckCalled_returnsHealthy() throws Exception{
-        UsefulServiceHealthCheck check = new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI));
+        UsefulServiceHealthCheck healthCheck =
+                new UsefulServiceHealthCheckWithConnectionLeak(client, new URI(AppConfig.USEFUL_SERVICE_VERSION_URI));
 
-        HealthCheck.Result result = check.check();
-        assertThat(result.isHealthy(), is(true));
-        assertThat(cm.getTotalStats().getLeased(), is(0));
+        assertThat(healthCheck.check().isHealthy(), is(true));
+        assertThat(poolingHttpCLientCOnnectionManager.getTotalStats().getLeased(), is(0));
     }
 }
